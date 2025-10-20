@@ -15,7 +15,6 @@ df <- as.data.frame(cols)
 ```{r}
 drb <- df$defensive_avg_defensive_rebounds
 z_drb <- scale(drb)
-z_drb
 ```
 
 ```{r}
@@ -77,12 +76,12 @@ ggplot() +
   geom_tile(
     data = z_df_final,
     aes(x = stats, y = teams, fill = Z_Score),
-    color = "white", linewidth = 0.3
+    color = "white"
   ) +
   geom_text(
     data = y_df_final,
     aes(x = stats, y = teams, label = round(Values, 2)),
-    color = "black", size = 3
+    color = "black",
   ) +
   scale_fill_gradientn(
     colors = c("#313695", "#4575B4", "#74ADD1", "#E0F3F8", 
