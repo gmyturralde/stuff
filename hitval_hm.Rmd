@@ -1,0 +1,105 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+
+data <- read.csv("~/Downloads/SecondBaseman.csv")
+```
+
+```{r}
+cols <- data[c("oWAR", "WAA", "OPS.")]
+
+df <- as.data.frame(cols)
+```
+
+```{r}
+owar <- df$oWAR
+z_owar <- scale(owar)
+```
+
+```{r}
+waa <- df$WAA
+z_waa <- scale(waa)
+```
+
+```{r}
+ops. <- df$OPS.
+z_ops. <- scale(ops.)
+```
+
+```{r}
+age <- data$Age
+
+y_df <- data.frame(age, owar, waa, ops.) |>
+  group_by(age) |>
+  summarise(
+    owar = mean(owar, na.rm = TRUE),
+    waa  = mean(waa, na.rm = TRUE),
+    ops. = mean(ops., na.rm = TRUE),
+    .groups = "drop"
+  )
+z_df <- data.frame(age, z_owar, z_waa, z_ops.) |>
+  group_by(age) |>
+  summarise(
+    owar = mean(z_owar, na.rm = TRUE),
+    waa  = mean(z_waa, na.rm = TRUE),
+    ops. = mean(z_ops., na.rm = TRUE),
+    .groups = "drop"
+  )
+
+y_df_final <- y_df |>
+  pivot_longer(cols = -age, names_to = "stats", values_to = "Values")
+
+z_df_final <- z_df |>
+  pivot_longer(cols = -age, names_to = "stats", values_to = "Z_Score")
+```
+
+```{r}
+y_df_final$stats <- recode(y_df_final$stats,
+  owar = "oWAR", waa = "WAA", ops. = "OPS+")
+
+z_df_final$stats <- recode(y_df_final$stats,
+  z_owar = "oWAR", z_waa = "WAA", z_ops. = "OPS+")
+```
+
+```{r}
+ggplot() +
+  geom_tile(
+    data = z_df_final,
+    aes(x = stats, y = age, fill = Z_Score),
+    color = "white", linewidth = 0.3
+  ) +
+  geom_text(
+    data = y_df_final,
+    aes(x = stats, y = age, label = round(Values, 2)),
+    color = "black", size = 3
+  ) +
+  scale_fill_gradientn(
+    colors = c("#313695", "#4575B4", "#74ADD1", "#E0F3F8", 
+             "#FFFFBF", "#FEE090", "#F46D43", "#D73027", "#A50026"),
+    limits = c(-5,5)
+  ) +
+  labs(
+    title = "2nd Baseman HitVal",
+    x = "Offensive Metric",
+    y = "Age"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    panel.grid = element_blank(),
+    axis.ticks = element_blank()
+  )
+```
+
+
+
+
+
+
+
+

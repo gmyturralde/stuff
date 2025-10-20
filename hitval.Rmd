@@ -1,0 +1,65 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+
+data <- read.csv("~/Downloads/SecondBaseman.csv")
+```
+
+```{r}
+cols <- data[c("oWAR", "WAA", "OPS.")]
+
+df <- as.data.frame(cols)
+```
+
+```{r}
+owar <- df$oWAR
+z_owar <- scale(owar)
+```
+
+```{r}
+waa <- df$WAA
+z_waa <- scale(waa)
+```
+
+```{r}
+ops. <- df$OPS.
+z_ops. <- scale(ops.)
+```
+
+```{r}
+age <- data$Age
+
+z_df <- data.frame(age, z_owar, z_waa, z_ops.) |>
+  group_by(age) |>
+  summarise(
+    owar = mean(z_owar, na.rm = TRUE),
+    waa  = mean(z_waa, na.rm = TRUE),
+    ops. = mean(z_ops., na.rm = TRUE),
+    .groups = "drop"
+  )
+
+z_df_final <- z_df |>
+  pivot_longer(cols = -age, names_to = "stats", values_to = "Z_Score")
+```
+
+```{r}
+z_df$avg_z <- rowMeans(z_df[, c("owar", "waa", "ops.")], na.rm = TRUE)
+
+z_df_final$stats <- recode(z_df_final$stats,
+  z_owar = "oWAR", z_waa = "WAA", z_ops. = "OPS+")
+```
+
+```{r}
+ggplot(z_df, aes(x = age, y = avg_z)) +
+  geom_line() +
+  theme_minimal() +
+  labs(title = "Average HitVal by Age", x = "Age", y = "HitVal")
+
+```
+
+

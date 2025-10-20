@@ -1,0 +1,109 @@
+```{r}
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+
+data <- read.csv("~/Downloads/BSA_Application_Dataset_25.csv")
+```
+
+```{r}
+cols <- data[c("team", "defensive_avg_defensive_rebounds", "defensive_avg_blocks", "defensive_avg_steals", "general_assist_turnover_ratio", "general_steal_foul_ratio", "general_block_foul_ratio")]
+
+df <- as.data.frame(cols)
+```
+
+```{r}
+drb <- df$defensive_avg_defensive_rebounds
+z_drb <- scale(drb)
+z_drb
+```
+
+```{r}
+blk <- df$defensive_avg_blocks
+z_blk <- scale(blk)
+```
+
+```{r}
+stl <- df$defensive_avg_steals
+z_stl <- scale(stl)
+```
+
+```{r}
+ast_to <- df$general_assist_turnover_ratio
+z_ast_to <- scale(ast_to)
+```
+
+```{r}
+stl_f <-df$general_steal_foul_ratio
+z_stl_f <- scale(stl_f)
+```
+
+```{r}
+blk_f <- df$general_block_foul_ratio
+z_blk_f <- scale(blk_f)
+```
+
+```{r}
+stats <- c("DRB", "BLK", "STL", "AST/TO", "STL/F", "BLK/F")
+teams <- data$team
+
+y_df <- data.frame(teams, drb, blk, stl, ast_to, stl_f, blk_f)
+z_df <- data.frame(teams, z_drb, z_blk, z_stl, z_ast_to, z_stl_f, z_blk_f)
+```
+
+```{r}
+y_df_final <- y_df |>
+  pivot_longer(cols = -teams, names_to = "stats", values_to = "Values")
+
+z_df_final <- z_df |>
+  pivot_longer(cols = -teams, names_to = "stats", values_to = "Z_Score")
+```
+
+```{r}
+y_df_final$stats <- recode(y_df_final$stats,
+  drb = "DRB", blk = "BLK", stl = "STL",
+  ast_to = "AST/TO", stl_f = "STL/F", blk_f = "BLK/F"
+)
+
+z_df_final$stats <- recode(z_df_final$stats,
+  z_drb = "DRB", z_blk = "BLK", z_stl = "STL",
+  z_ast_to = "AST/TO", z_stl_f = "STL/F", z_blk_f = "BLK/F"
+)
+```
+
+
+```{r}
+ggplot() +
+  geom_tile(
+    data = z_df_final,
+    aes(x = stats, y = teams, fill = Z_Score),
+    color = "white", linewidth = 0.3
+  ) +
+  geom_text(
+    data = y_df_final,
+    aes(x = stats, y = teams, label = round(Values, 2)),
+    color = "black", size = 3
+  ) +
+  scale_fill_gradientn(
+    colors = c("#313695", "#4575B4", "#74ADD1", "#E0F3F8", 
+             "#FFFFBF", "#FEE090", "#F46D43", "#D73027", "#A50026"),
+    limits = c(-2.66, 2.66)
+  ) +
+  labs(
+    title = "B1G Women's Basketball Defensive Performance",
+    x = "Defensive Metrics",
+    y = "Teams"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    panel.grid = element_blank(),
+    axis.ticks = element_blank()
+  )
+```
+
+
+
+
+
+
