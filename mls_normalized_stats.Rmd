@@ -1,0 +1,27 @@
+```{r}
+library(ggplot2)
+
+df <- read.csv("~/Downloads/Soccer.csv")
+```
+
+```{r}
+x <- function(stat) {
+  df$stat_z <- round((df[[stat]] - mean(df[[stat]], na.rm = TRUE)) / sd(df[[stat]], na.rm = TRUE), 2)
+
+  df$Group <- ifelse(df$stat_z < 0, "below", "above")
+  df <- df[order(df$stat_z), ]
+
+  ggplot(df, aes(x = reorder(Squad, stat_z), y = stat_z, fill = Group)) +
+    geom_bar(stat = "identity", width = 0.5) +
+    scale_fill_manual(values = c("above" = "green", "below" = "red")) +
+    labs(title = paste("Normalized", stat), x = "Team", y = "Z-Score") +
+    coord_flip() +
+    theme_minimal() +
+    theme(legend.position = "none")
+}
+```
+
+```{r}
+x("xG")
+```
+
