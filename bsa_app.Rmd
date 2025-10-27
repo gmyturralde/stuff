@@ -76,16 +76,14 @@ ggplot() +
   geom_tile(
     data = z_df_final,
     aes(x = stats, y = teams, fill = Z_Score),
-    color = "white"
   ) +
   geom_text(
     data = y_df_final,
     aes(x = stats, y = teams, label = round(Values, 2)),
-    color = "black",
   ) +
   scale_fill_gradientn(
-    colors = c("#313695", "#4575B4", "#74ADD1", "#E0F3F8", 
-             "#FFFFBF", "#FEE090", "#F46D43", "#D73027", "#A50026"),
+    colors = c("#313695", "#4575B4", "#74ADD1", "#E0F3F8", "#FFFFBF", "#FEE090", "#F46D43", 
+               "#D73027", "#A50026"),
     limits = c(-2.66, 2.66)
   ) +
   labs(
